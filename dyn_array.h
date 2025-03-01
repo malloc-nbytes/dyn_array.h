@@ -1,8 +1,6 @@
 #ifndef DYN_ARRAY_H
 #define DYN_ARRAY_H
 
-#ifdef DYN_ARRAY_IMPL
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -93,7 +91,5 @@
 #define dyn_array_explode(da) (da).data, (da).len, (da).cap
 
 #define dyn_array_explode_mem(da) &(da).data, &(da).len, &(da).cap
-
-#endif // DYN_ARRAY_IMPL
 
 #endif // DYN_ARRAY_H
