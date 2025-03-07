@@ -1,24 +1,69 @@
+// MIT License
+
+// Copyright (c) 2025 malloc-nbytes
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #ifndef DYN_ARRAY_H
 #define DYN_ARRAY_H
 
 #include <stdlib.h>
 #include <string.h>
 
-#define dyn_array_type(ty, name) \
+//////////////////////////////////////////////////
+// Creates a new dynamic array type globally.
+// Note: Use dyn_array_init() to initialize
+//       any instances of it.
+// Example:
+//   dyn_array_type(int, Int_Array);
+//
+//   void f(Int_Array *arr);
+//
+//   int main(void) {
+//       Int_Array arr;
+//       return 0;
+//   }
+#define DYN_ARRAY_TYPE(ty, name) \
     typedef struct {             \
         ty *data;                \
         size_t len, cap;         \
     } name
 
-#define dyn_array_init(da)       \
-    do {                         \
+//////////////////////////////////////////////////
+// Initializes a global array type. This is only
+// used if you use DYN_ARRAY_TYPE().
+// Example:
+//   dyn_array_type(int, Int_Array);
+//
+//   int main(void) {
+//       Int_Array arr;
+//       dyn_array_init_type(arr); // <- here
+//       return 0;
+//   }
+#define dyn_array_init_type(da)                 \
+    do {                                        \
         (da).data = malloc(sizeof(*(da).data)); \
-        (da).cap = 1;            \
-        (da).len = 0;            \
+        (da).cap = 1;                           \
+        (da).len = 0;                           \
     } while (0)
 
 //////////////////////////////////////////////////
-// Creates a new dynamic array.
+// Creates a new dynamic array on the stack.
 // Example:
 //   dyn_array(int, int_vector);
 #define dyn_array(ty, name)                                        \
@@ -60,8 +105,8 @@
 //   dyn_array(int, int_vector);
 //   dyn_array_append(int_vector, i);
 //   printf("%d\n", dyn_array_at_s(int_vector));
-#define dyn_array_at_s(da, i) \
-    ((i) < (da).len ? (da).data[i] : (fprintf(stderr, \
+#define dyn_array_at_s(da, i)                                      \
+    ((i) < (da).len ? (da).data[i] : (fprintf(stderr,              \
     "[dyn_array error]: index %zu is out of bounds (len = %zu)\n", \
     (size_t)(i), (size_t)(da).len), exit(1), (da).data[0]))
 
@@ -81,6 +126,14 @@
 //   dyn_array_clear(int_vector);
 #define dyn_array_clear(da) (da).len = 0;
 
+//////////////////////////////////////////////////
+// Remove an element at index `idx`.
+// Example:
+//   dyn_array(int, int_vector);
+//   ...
+//   dyn_array_rm_at(int_vector, 0);
+//   dyn_array_rm_at(int_vector, 5);
+//   ...
 #define dyn_array_rm_at(da, idx) \
     do {                                                     \
         for (size_t __i_ = (idx); __i_ < (da).len-1; ++__i_) \
