@@ -19,6 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+/* This file is used for making stack alloc'd dynamic
+ * arrays where we dont need to use the Array<T> DS. */
+
 #ifndef DYN_ARRAY_H
 #define DYN_ARRAY_H
 
@@ -70,7 +73,7 @@
     struct {                                                       \
         ty *data;                                                  \
         size_t len, cap;                                           \
-    } (name) = { .data = malloc(sizeof(ty)), .cap = 1, .len = 0 };
+    } (name) = { .data = (typeof(ty) *)malloc(sizeof(ty)), .len = 0, .cap = 1 };
 
 //////////////////////////////////////////////////
 // Append to a dynamic array.
@@ -78,13 +81,15 @@
 //   dyn_array(int, int_vector);
 //   for (int i = 0; i < 10; ++i)
 //     dyn_array_append(int_vector, i);
-#define dyn_array_append(da, value)                                          \
-    do {                                                                     \
-        if ((da).len >= (da).cap) {                                          \
-            (da).cap *= 2;                                                   \
-            (da).data = realloc((da).data, (da).cap * sizeof((da).data[0])); \
-        }                                                                    \
-        (da).data[(da).len++] = (value);                                     \
+#define dyn_array_append(da, value)                                     \
+    do {                                                                \
+        if ((da).len >= (da).cap) {                                     \
+            (da).cap = (da).cap ? (da).cap * 2 : 2;                     \
+            (da).data = (typeof(*((da).data)) *)                        \
+                realloc((da).data,                                      \
+                        (da).cap * sizeof(*((da).data)));               \
+        }                                                               \
+        (da).data[(da).len++] = (value);                                \
     } while (0)
 
 //////////////////////////////////////////////////
